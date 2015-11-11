@@ -32,7 +32,7 @@
     },
     "autoload": {
         "psr-4": {
-            "KamranAhmed\\LaravelCensor\\": "src"
+            "KamranAhmed\\LaravelCensor\\": "src/"
         }
     },
     "autoload-dev": {
