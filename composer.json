@@ -1,17 +1,7 @@
 {
-    "name": "kamranamedse/laravel-censor",
+    "name": "kamranahmedse/laravel-censor",
     "description": "A middleware to censor certain words from your pages",
-    "keywords": [
-        "kamranahmedse",
-        "laravel-censor",
-        "route",
-        "middleware",
-        "censor",
-        "laravel",
-        "redact",
-        "censor-pages"
-    ],
-    "homepage": "https://github.com/kamranahmedse/laravel-censor",
+    "keywords": ["kamranahmedse", "laravel-censor", "route", "middleware", "censor", "laravel", "redact", "censor-pages"],
     "license": "MIT",
     "authors": [
         {
@@ -25,22 +15,10 @@
         "php" : ">=5.4.0",
         "laravel/framework": "^5.1.11"
     },
-    "require-dev": {
-        "phpunit/phpunit" : "4.*",
-        "scrutinizer/ocular": "~1.1",
-        "orchestra/testbench": "~3.0"
-    },
     "autoload": {
         "psr-4": {
-            "KamranAhmed\\LaravelCensor\\": "src"
+            "KamranAhmed\\LaravelCensor\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "KamranAhmed\\LaravelCensor\\Test\\": "tests"
-        }
-    },
-    "scripts": {
-        "test": "vendor/bin/phpunit"
-    }
+    "minimum-stability": "stable"
 }

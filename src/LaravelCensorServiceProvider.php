@@ -1,18 +1,21 @@
-<?php namespace KamranAhmed\LaravelCensor\Middleware;
+<?php namespace KamranAhmed\LaravelCensor;
 
 use App;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 
-class CensorServiceProvider extends ServiceProvider
+class LaravelCensorServiceProvider extends ServiceProvider
 {
+
     /**
      * Indicates if loading of the provider is deferred.
      *
      * @var bool
      */
     protected $defer = false;
+
     protected $package = 'kamranahmedse/laravel-censor';
+
     /**
      * Bootstrap the application events.
      *
@@ -26,8 +29,9 @@ class CensorServiceProvider extends ServiceProvider
 
         /** @var Kernel $kernel */
         $kernel = $this->app['Illuminate\Contracts\Http\Kernel'];
-        $kernel->pushMiddleware(Censor::class);
+        $kernel->pushMiddleware(CensorMiddleware::class);
     }
+
     /**
      * Register the service provider.
      *
@@ -37,4 +41,5 @@ class CensorServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/censor.php', 'censor');
     }
+
 }

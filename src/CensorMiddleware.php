@@ -1,10 +1,10 @@
-<?php namespace KamranAhmed\LaravelCensor\Middleware;
+<?php namespace KamranAhmed\LaravelCensor;
 
 use Closure;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class Censor
+class CensorMiddleware
 {
     /**
      * Handle an incoming request.
