@@ -1,6 +1,7 @@
 <?php namespace KamranAhmed\LaravelCensor;
 
 use Closure;
+use Config;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -22,8 +23,8 @@ class CensorMiddleware
     {
         $response = $next($request);
 
-        $toReplace = [];
-        $toRedact = [];
+        $toReplace = Config::get('censor.replace');
+        $toRedact = Config::get('censor.redact');
 
         $content = $response->getContent();
         $content = $this->censorResponse( $content, $toReplace, $toRedact );
