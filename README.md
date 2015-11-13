@@ -1,5 +1,5 @@
 # Laravel Censor
-A laravel middleware that will automatically censor the words that you will specify.
+A laravel middleware that will automatically censor the words that you will specify. All you have to do is specify the words, that you want to redact or replace, in a configuration file and these words will automatically be redacted/replaced from the views on whose route you will specify the middleware.
 
 ## Installation
 Run `composer require kamranahmedse/laravel-censor` in your terminal
