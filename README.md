@@ -8,23 +8,29 @@ Run `composer require kamranahmedse/laravel-censor` in your terminal
 Perform the following operations in order to use this middleware
 - **Add Service Provider** 
    Open `config/app.php` and add `KamranAhmed\LaravelCensor\LaravelCensorServiceProvider::class` to the end of`providers` array:
+
     ```
     'providers' => array(
         ....
         KamranAhmed\LaravelCensor\LaravelCensorServiceProvider::class,
     ),
     ```
+
 - **Register the Middleware** After that open the file `app/Http/Kernel.php` and add the following 
+
    ```
   'censor' => \KamranAhmed\LaravelCensor\CensorMiddleware::class
    ```
+
    to the end of `$routeMiddleware` array
+
    ```
     protected $routeMiddleware = [
         ...
         'censor' => \KamranAhmed\LaravelCensor\CensorMiddleware::class
     ];
    ```
+
 - **Publish Configuration** Open terminal and run
 
     ```shell
