@@ -7,7 +7,7 @@ Run `composer require kamranahmedse/laravel-censor` in your terminal
 ## How to use
 Perform the following operations in order to use this middleware
 - **Add Service Provider** 
-   Open `config/app.php` and add `KamranAhmed\LaravelCensor\LaravelCensorServiceProvider::class` to the end of`providers` array:
+   Open `config/app.php` and add `KamranAhmed\LaravelCensor\LaravelCensorServiceProvider::class` to the end of `providers` array:
 
     ```
     'providers' => array(
@@ -73,5 +73,6 @@ Perform the following operations in order to use this middleware
     ```
     
 ## How to Contribute
-- You may add some new functionality, improve some existing functionality, improve the code maybe etc and open up a pull request explaining what you did and I will be more than happy to accept it.
-- Report any issues in the [issues section](https://github.com/kamranahmedse/laravel-censor/issues) or reach me directly at kamranahmed.se@gmail.com if it can't wait ;)
+- Feel free to add some new functionality, improve some existing functionality etc and open up a pull request explaining what you did.
+- Report any issues in the [issues section](https://github.com/kamranahmedse/laravel-censor/issues)
+- Also you can reach me directly at kamranahmed.se@gmail.com with any feedback
