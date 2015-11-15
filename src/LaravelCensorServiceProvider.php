@@ -26,10 +26,6 @@ class LaravelCensorServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/censor.php' => config_path('censor.php')
         ], 'config');
-
-        /** @var Kernel $kernel */
-        $kernel = $this->app['Illuminate\Contracts\Http\Kernel'];
-        $kernel->pushMiddleware(CensorMiddleware::class);
     }
 
     /**
