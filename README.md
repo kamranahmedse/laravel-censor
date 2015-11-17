@@ -2,10 +2,8 @@
 A laravel middleware that will automatically censor the words that you will specify. All you have to do is specify the words, that you want to redact or replace, in a configuration file and these words will automatically be redacted/replaced from the views on whose route you will specify the middleware.
 
 ## Installation
-Run `composer require kamranahmedse/laravel-censor` in your terminal
-
-## How to use
 Perform the following operations in order to use this middleware
+- Run `composer require kamranahmedse/laravel-censor` in your terminal
 - **Add Service Provider** 
    Open `config/app.php` and add `KamranAhmed\LaravelCensor\LaravelCensorServiceProvider::class` to the end of `providers` array:
 
@@ -36,6 +34,9 @@ Perform the following operations in order to use this middleware
     ```shell
     php artisan vendor:publish
     ```
+    
+## How to use
+
 - After following the above steps, there will be a `censor.php` file inside the `config` directory. The file has two arrays, namely `replace` and `redact`.
 - You have to specify the words that you want to replace in the `replace` array with words set to the keys of array and replacements as values i.e.
 
