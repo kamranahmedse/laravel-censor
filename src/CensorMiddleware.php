@@ -7,6 +7,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CensorMiddleware
 {
+    protected $replaceDict;
+    protected $redactDict;
+
     /**
      * Handle an incoming request.
      *
@@ -23,44 +26,62 @@ class CensorMiddleware
     {
         $response = $next($request);
 
-        $toReplace = Config::get('censor.replace');
-        $toRedact = Config::get('censor.redact');
+        $this->replaceDict = $this->normalizeKeys(Config::get('censor.replace', []));
+        $this->redactDict  = $this->normalizeKeys(Config::get('censor.redact', []));
 
         $content = $response->getContent();
-        $content = $this->censorResponse( $content, $toReplace, $toRedact );
+        $content = $this->censorResponse($content);
 
-        $response->setContent( $content );
+        $response->setContent($content);
 
-       return $response;
+        return $response;
+    }
+
+    private function normalizeKeys($dictionary)
+    {
+        $normalized = [];
+
+        foreach ($dictionary as $pattern => $value) {
+            $pattern              = str_replace('%', '(?:[^<\s]*)', $pattern);
+            $normalized[$pattern] = $value;
+        }
+
+        return $normalized;
     }
 
     /**
      * Censor the request response.
+     *
+     * @param $source
+     *
+     * @return mixed
      */
-    protected function censorResponse($source, $toReplace, $toRedact)
+    protected function censorResponse($source)
     {
-        $replaceables = array_keys( $toReplace );
-        $replaceables = array_merge( $replaceables, $toRedact );
+        $replaceables = array_keys($this->replaceDict);
+        $replaceables = array_merge($replaceables, $this->redactDict);
 
         // Word boundary and word matching regex
         $replaceables = '\b' . implode('\b|\b', $replaceables) . '\b';
-        $regex = '/>(?:[^<]*?(' . $replaceables . ')[^<]*?)</i';
+        $regex        = '/>(?:[^<]*?(' . $replaceables . ')[^<]*?)</i';
 
         // Make the keys lower case so that it is easy to lookup
         // the replacements
-        $toReplace = array_change_key_case($toReplace, CASE_LOWER);
+        $toReplace = array_change_key_case($this->replaceDict, CASE_LOWER);
+        $toRedact  = $this->redactDict;
 
-        $source = preg_replace_callback($regex, function ( $match ) use ( $toReplace, $toRedact ) {
+        $source = preg_replace_callback($regex, function ($match) use ($toReplace, $toRedact) {
 
             $temp = strtolower($match[1]);
 
             // If we have to replace it
-            if ( isset( $toReplace[ $temp ] )) {
-                // return $toReplace[ $temp ];
-                return str_replace($match[1], $toReplace[ $temp ], $match[0]);
-            } else if ( $this->_inArray( $temp, $toRedact ) ) {
+            if (isset($toReplace[$temp])) {
+                return str_replace($match[1], $toReplace[$temp], $match[0]);
+            } elseif ($regexReplace = $this->getReplaceRegexKey($temp)) {
+                return str_replace($match[1], $toReplace[$regexReplace], $match[0]);
+            } elseif ($this->_inArray($temp, $toRedact)) {
                 // return str_repeat('*', strlen( $temp ));
-                $replaceWith = str_repeat('*', strlen( $temp ));
+                $replaceWith = str_repeat('*', strlen($temp));
 
                 return str_replace($match[1], $replaceWith, $match[0]);
             } else {
@@ -72,9 +93,19 @@ class CensorMiddleware
         return $source;
     }
 
-    private function _inArray($needle, $haystack) {
+    public function getReplaceRegexKey($matched)
+    {
+        foreach ($this->replaceDict as $pattern => $replaceWith) {
+            if(preg_match('/' . $pattern . '/', $matched)) {
+                return $pattern;
+            }
+        }
+
+        return false;
+    }
+
+    private function _inArray($needle, $haystack)
+    {
         return in_array(strtolower($needle), array_map('strtolower', $haystack));
     }
 }
-
-?>
