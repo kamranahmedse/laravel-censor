@@ -26,8 +26,7 @@ class CensorMiddleware
     {
         $response = $next($request);
 
-        $this->replaceDict = $this->normalizeKeys(Config::get('censor.replace', []));
-        $this->redactDict  = $this->normalizeKeys(Config::get('censor.redact', []));
+        $this->prepareDictionary();
 
         $content = $response->getContent();
         $content = $this->censorResponse($content);
@@ -37,16 +36,27 @@ class CensorMiddleware
         return $response;
     }
 
-    private function normalizeKeys($dictionary)
+    private function prepareDictionary()
     {
-        $normalized = [];
+        $replaceDict = Config::get('censor.replace', []);
+        $redactDict  = Config::get('censor.redact', []);
 
-        foreach ($dictionary as $pattern => $value) {
-            $pattern              = str_replace('%', '(?:[^<\s]*)', $pattern);
-            $normalized[$pattern] = $value;
+        $replaceDictKeys   = array_keys($replaceDict);
+        $replaceDictValues = array_values($replaceDict);
+
+        $replaceDictKeys = $this->normalizeRegex($replaceDictKeys);
+
+        $this->replaceDict = array_combine($replaceDictKeys, $replaceDictValues);
+        $this->redactDict  = $this->normalizeRegex($redactDict);
+    }
+
+    private function normalizeRegex($dictionary)
+    {
+        foreach ($dictionary as &$pattern) {
+            $pattern = str_replace('%', '(?:[^<\s]*)', $pattern);
         }
 
-        return $normalized;
+        return $dictionary;
     }
 
     /**
@@ -77,10 +87,9 @@ class CensorMiddleware
             // If we have to replace it
             if (isset($toReplace[$temp])) {
                 return str_replace($match[1], $toReplace[$temp], $match[0]);
-            } elseif ($regexReplace = $this->getReplaceRegexKey($temp)) {
-                return str_replace($match[1], $toReplace[$regexReplace], $match[0]);
-            } elseif ($this->_inArray($temp, $toRedact)) {
-                // return str_repeat('*', strlen( $temp ));
+            } elseif ($regexKey = $this->getReplaceRegexKey($temp)) {
+                return str_replace($match[1], $toReplace[$regexKey], $match[0]);
+            } elseif ($this->_inArray($temp, $toRedact) || $this->getRedactRegexKey($temp)) {
                 $replaceWith = str_repeat('*', strlen($temp));
 
                 return str_replace($match[1], $replaceWith, $match[0]);
@@ -96,7 +105,7 @@ class CensorMiddleware
     public function getReplaceRegexKey($matched)
     {
         foreach ($this->replaceDict as $pattern => $replaceWith) {
-            if(preg_match('/' . $pattern . '/', $matched)) {
+            if (preg_match('/' . $pattern . '/', $matched)) {
                 return $pattern;
             }
         }
@@ -107,5 +116,16 @@ class CensorMiddleware
     private function _inArray($needle, $haystack)
     {
         return in_array(strtolower($needle), array_map('strtolower', $haystack));
+    }
+
+    public function getRedactRegexKey($matched)
+    {
+        foreach ($this->redactDict as $pattern) {
+            if (preg_match('/' . $pattern . '/', $matched)) {
+                return $pattern;
+            }
+        }
+
+        return false;
     }
 }
