@@ -5,9 +5,19 @@ use Config;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * Class CensorMiddleware
+ *
+ * A middleware that helps in easily replacing or redacting words on page.
+ *
+ * @package KamranAhmed\LaravelCensor
+ */
 class CensorMiddleware
 {
+    /** @var  An associative array of keys as words or patterns and values as the replacements */
     protected $replaceDict;
+
+    /** @var  An array specifying the words and patterns that are to be redacted */
     protected $redactDict;
 
     /**
@@ -36,6 +46,10 @@ class CensorMiddleware
         return $response;
     }
 
+    /**
+     * Sets up the dictionaries, normalizes the content provided for censor
+     * for replacing and redacting stuff on page
+     */
     private function prepareDictionary()
     {
         $replaceDict = Config::get('censor.replace', []);
@@ -50,6 +64,13 @@ class CensorMiddleware
         $this->redactDict  = $this->normalizeRegex($redactDict);
     }
 
+    /**
+     * Converts the words containing wildcards to regex patterns
+     *
+     * @param $dictionary
+     *
+     * @return array
+     */
     private function normalizeRegex($dictionary)
     {
         foreach ($dictionary as &$pattern) {
@@ -80,6 +101,7 @@ class CensorMiddleware
         $toReplace = array_change_key_case($this->replaceDict, CASE_LOWER);
         $toRedact  = $this->redactDict;
 
+        // Find all the matches and keep redacting/replacing
         $source = preg_replace_callback($regex, function ($match) use ($toReplace, $toRedact) {
 
             $temp = strtolower($match[1]);
@@ -87,9 +109,9 @@ class CensorMiddleware
             // If we have to replace it
             if (isset($toReplace[$temp])) {
                 return str_replace($match[1], $toReplace[$temp], $match[0]);
-            } elseif ($regexKey = $this->getReplaceRegexKey($temp)) {
+            } elseif ($regexKey = $this->getReplaceRegexKey($temp)) { // Get the key i.e. pattern of the replace dictionary
                 return str_replace($match[1], $toReplace[$regexKey], $match[0]);
-            } elseif ($this->_inArray($temp, $toRedact) || $this->getRedactRegexKey($temp)) {
+            } elseif ($this->_inArray($temp, $toRedact) || $this->getRedactRegexKey($temp)) {  // If it matches a word or pattern to redact
                 $replaceWith = str_repeat('*', strlen($temp));
 
                 return str_replace($match[1], $replaceWith, $match[0]);
@@ -102,6 +124,14 @@ class CensorMiddleware
         return $source;
     }
 
+    /**
+     * Gets a matched item, checks the replace dictionary for any satisfying pattern
+     * and returns the matching pattern key item if any
+     *
+     * @param $matched
+     *
+     * @return bool|string
+     */
     public function getReplaceRegexKey($matched)
     {
         foreach ($this->replaceDict as $pattern => $replaceWith) {
@@ -113,11 +143,27 @@ class CensorMiddleware
         return false;
     }
 
+    /**
+     * Case in-sensitive in_array
+     *
+     * @param $needle
+     * @param $haystack
+     *
+     * @return bool
+     */
     private function _inArray($needle, $haystack)
     {
         return in_array(strtolower($needle), array_map('strtolower', $haystack));
     }
 
+    /**
+     * Gets the matched item and check if it matches any of the patterns
+     * available in redact dictionary
+     *
+     * @param $matched
+     *
+     * @return bool
+     */
     public function getRedactRegexKey($matched)
     {
         foreach ($this->redactDict as $pattern) {
