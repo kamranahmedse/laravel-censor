@@ -1,5 +1,8 @@
 # Laravel Censor
-A laravel middleware that will automatically censor the words that you will specify. All you have to do is specify the words, that you want to redact or replace, in a configuration file and these words will automatically be redacted/replaced from the views on whose route you will specify the middleware.
+
+> Let's you easily redact or replace the occurences of `words`, `sentences` or `%wildcards%`  
+
+A laravel middleware that will automatically censor the words that you will specify. All you have to do is specify the things, that you want to redact or replace, in a configuration file and these words will automatically be redacted/replaced from the views on whose route you will specify the middleware.
 
 ## Installation
 Perform the following operations in order to use this middleware
@@ -38,11 +41,13 @@ Perform the following operations in order to use this middleware
 ## How to use
 
 - After following the above steps, there will be a `censor.php` file inside the `config` directory. The file has two arrays, namely `replace` and `redact`.
-- You have to specify the words that you want to replace in the `replace` array with words set to the keys of array and replacements as values i.e.
+- You have to specify the words that you want to replace in the `replace` array with words or wildcards set to the keys of array and replacements as values i.e.
 
     ```php
     'replace' => [
 	    'idiot'    => '(not a nice word)',
+	    'hate%'    => 'peace',      // Wildcard: Will replace the words beginning at hate e.g. hatered, hate, hated etc
+	    '%eograph%' =>  'some-graphy-word',         // Willcard: Will replace words containing `eograph` anywhere in the middle e.g. geographic, angeography etc
 	    'seventh'  => '7th',
 	    'monthly'  => 'every month',
 	    'yearly'   => 'every year',
@@ -54,8 +59,8 @@ Perform the following operations in order to use this middleware
 
     ```php
     'redact' => [
-       'idiot',
-       'password',
+       'idiot%',        // e.g. idiot will be replaced with 5 asterisks, idiotic with 7 asterisks etc 
+       'password',      // Will be replaced with 8 asterisks
        'word-that-i-really-dislike',
     ],
     ```
